@@ -1,6 +1,5 @@
 ﻿using KingKarel.Dto;
-using KingKarel.Repository;
-using Microsoft.AspNetCore.Authorization;
+using KingKarel.Repository.Contract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KingKarel.Controllers;
@@ -23,9 +22,14 @@ public class StoryController : ControllerBase
     }
 
     [HttpGet("{storyId}")]
-    public async Task<ActionResult<StoryDto?>> GetStory(string storyId)
+    public async Task<ActionResult<StoryWithMissionsDto?>> GetStory(string storyId)
     {
-        var story = await _storyRepository.GetStory(storyId);
+        bool success = int.TryParse(User.Claims.First(x => x.Type == "id").Value, out var userId);
+        if (!success)
+        {
+            return Unauthorized();
+        }
+        var story = await _storyRepository.GetStory(storyId, userId);
 
         if (story is null)
         {
@@ -34,41 +38,4 @@ public class StoryController : ControllerBase
 
         return Ok(story);
     }
-
-    // [HttpPost]
-    // public async Task<ActionResult<Story>> PostStory([FromBody] Story story)
-    // {
-    //     var newStory = await _storyRepository.Create(story);
-    //     return CreatedAtAction(nameof(GetBooks), new { id = newStory.Id }, newStory);
-    // }
-
-    // [HttpPut]
-    // public async Task<ActionResult> PostStory(int id, [FromBody] Story story)
-    // {
-    //     if (id != story.Id)
-    //     {
-    //         return BadRequest();
-    //     }
-    //     
-    //     var newStory = await _storyRepository.Update(story);
-    //
-    //     return NoContent();
-    // }
-
-    // [HttpDelete("{id}")]
-    // public async Task<ActionResult> Delete(int id)
-    // {
-    //     var storyToDelete = _storyRepository.Get(id);
-    //     if (storyToDelete == null)
-    //     {
-    //         return NotFound();
-    //     }
-    //
-    //     await _storyRepository.Delete(storyToDelete.Id);
-    //     return NoContent();
-    // }
-
-    // TODO: entity to DTO
-    // private static Reminder GetDto(Database.Reminder reminder) =>
-    //     new(reminder.Id, reminder.OwnerId, reminder.MessageId, reminder.ChannelId, reminder.DateTime, reminder.Content);
 }

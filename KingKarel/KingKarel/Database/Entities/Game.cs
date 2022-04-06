@@ -6,6 +6,7 @@ namespace KingKarel.Database.Entities;
 public class Game : Mission
 {
     public string CommandsInitial { get; set; }
+    public string TaskDescription { get; set; }
 
     public string BoardInitial { get; set; }
     public string BoardResult { get; set; }

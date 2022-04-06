@@ -1,6 +1,8 @@
 ﻿using KingKarel.Helpers;
 using KingKarel.Repository;
+using KingKarel.Repository.Contract;
 using KingKarel.Services;
+using KingKarel.Services.Contract;
 
 namespace KingKarel;
 
@@ -26,10 +28,5 @@ public static class KingKarelExtensions
             ;
 
         return services;
-    }
-
-    public static IApplicationBuilder UseKingKarelMiddlewares(this IApplicationBuilder builder)
-    {
-        return builder;
     }
 }

@@ -1,5 +1,5 @@
 ﻿using KingKarel.Dto;
-using KingKarel.Services;
+using KingKarel.Services.Contract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,10 +22,12 @@ public class AuthController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<AuthResponseDto?>> Login([FromBody] LoginDto loginData)
     {
+        Response.Headers.Add("Access-Control-Allow-Origin", "*");
+        
         UserDto? user = await _userService.LoginUser(loginData);
         if (user is null)
         {
-            return BadRequest();
+            return Unauthorized();
         }
 
         return Ok(new AuthResponseDto(_jwtService.GenerateJwtToken(user), user));
@@ -39,7 +41,7 @@ public class AuthController : ControllerBase
         var user = await _userService.GetUserByUsername(registerData.Username);
         if (user != null)
         {
-            return BadRequest();
+            return Unauthorized();
         }
 
         // Try to register the user.

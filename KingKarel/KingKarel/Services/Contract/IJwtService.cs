@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using KingKarel.Dto;
 
-namespace KingKarel.Services;
+namespace KingKarel.Services.Contract;
 
 public interface IJwtService
 {

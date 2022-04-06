@@ -2,6 +2,7 @@
 
 public record GameDto(
     string Url, string Name, string Description,
+    string TaskDescription,
     string CommandsInitial, string Commands,
     string BoardInitial, string BoardResult,
     int SpeedLimit, int Speed,

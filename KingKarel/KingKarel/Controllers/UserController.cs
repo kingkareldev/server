@@ -1,5 +1,5 @@
 ﻿using KingKarel.Dto;
-using KingKarel.Services;
+using KingKarel.Services.Contract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KingKarel.Controllers;
@@ -20,9 +20,9 @@ public class UserController : ControllerBase
     {
         return await _userService.GetUser(id);
     }
-    
+
     [HttpGet]
-    [Route("byUsername")]
+    [Route("ByUsername")]
     public async Task<ActionResult<UserDto?>> GetUserByUsername(string username)
     {
         var user = await _userService.GetUserByUsername(username);
@@ -33,5 +33,18 @@ public class UserController : ControllerBase
         }
 
         return user;
+    }
+
+    [HttpGet]
+    [Route("Current")]
+    public async Task<ActionResult<UserDto?>> GetCurrentUser()
+    {
+        bool success = int.TryParse(User.Claims.First(x => x.Type == "id").Value, out var userId);
+        if (!success)
+        {
+            return Unauthorized();
+        }
+
+        return await _userService.GetUser(userId);
     }
 }

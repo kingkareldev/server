@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using KingKarel.Dto;
 using KingKarel.Helpers;
+using KingKarel.Services.Contract;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 

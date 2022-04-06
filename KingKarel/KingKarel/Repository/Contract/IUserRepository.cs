@@ -1,6 +1,6 @@
 ﻿using KingKarel.Dto;
 
-namespace KingKarel.Repository;
+namespace KingKarel.Repository.Contract;
 
 public interface IUserRepository
 {

@@ -3,31 +3,29 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using KingKarel.Dto;
 using KingKarel.Services;
+using KingKarel.Services.Contract;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
 namespace KingKarel.Helpers;
 
-public class BasicAuthenticationOptions : AuthenticationSchemeOptions
+public class KingKarelAuthOptions : AuthenticationSchemeOptions
 {
 }
 
-public class CustomAuthenticationHandler : AuthenticationHandler<BasicAuthenticationOptions>
+public class KingKarelAuthHandler : AuthenticationHandler<KingKarelAuthOptions>
 {
     private readonly IJwtService _jwtService;
-    private readonly IUserService _userService;
 
-    public CustomAuthenticationHandler(
-        IOptionsMonitor<BasicAuthenticationOptions> options,
+    public KingKarelAuthHandler(
+        IOptionsMonitor<KingKarelAuthOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
         ISystemClock clock,
-        IJwtService jwtService,
-        IUserService userService
+        IJwtService jwtService
     ) : base(options, logger, encoder, clock)
     {
         _jwtService = jwtService;
-        _userService = userService;
     }
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -73,11 +71,6 @@ public class CustomAuthenticationHandler : AuthenticationHandler<BasicAuthentica
         }
 
         var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
-        UserDto? currentUser = await _userService.GetUser(userId);
-        if (currentUser is null)
-        {
-            return AuthenticateResult.Fail("Unauthorized");
-        }
 
         var claims = new List<Claim>
         {

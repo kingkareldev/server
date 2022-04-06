@@ -1,15 +1,20 @@
-﻿using KingKarel.Dto;
+﻿using BCrypt.Net;
+using KingKarel.Dto;
 using KingKarel.Repository;
+using KingKarel.Repository.Contract;
+using KingKarel.Services.Contract;
 
 namespace KingKarel.Services;
 
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly ILogger<UserService> _logger;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, ILogger<UserService> logger)
     {
         _userRepository = userRepository;
+        _logger = logger;
     }
 
     public async Task<UserDto?> LoginUser(LoginDto loginData)
@@ -48,6 +53,19 @@ public class UserService : IUserService
 
     private bool VerifyPassword(string password, string passwordHash)
     {
-        return BCrypt.Net.BCrypt.Verify(password, passwordHash);
+        try
+        {
+            return BCrypt.Net.BCrypt.Verify(password, passwordHash);
+        }
+        catch (SaltParseException e)
+        {
+            _logger.LogError(e, "Salt couldn't been parsed");
+        }
+        catch (Exception e)
+        {
+            _logger.LogWarning(e, "Password verification failed");
+        }
+
+        return false;
     }
 }

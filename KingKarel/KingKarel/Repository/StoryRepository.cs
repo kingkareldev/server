@@ -2,6 +2,7 @@
 using KingKarel.Database;
 using KingKarel.Database.Entities;
 using KingKarel.Dto;
+using KingKarel.Repository.Contract;
 using Microsoft.EntityFrameworkCore;
 
 namespace KingKarel.Repository;
@@ -19,16 +20,33 @@ public class StoryRepository : IStoryRepository
 
     public async Task<IEnumerable<StoryDto>> GetStories()
     {
-        return (await _dbContext.Stories.ToListAsync().ConfigureAwait(false))
+        return (await _dbContext.Stories.Include(s => s.Missions).ToListAsync().ConfigureAwait(false))
             .Select(GetStoryDto).ToImmutableList();
     }
 
-    public async Task<StoryDto?> GetStory(string storyUrl)
+    public async Task<IEnumerable<StoryWithMissionsDto>> GetStoriesStats(int userId)
+    {
+        var storiesWithMissions = new List<StoryWithMissionsDto>();
+        var stories = await _dbContext.Stories.ToListAsync().ConfigureAwait(false);
+
+        foreach (var story in stories)
+        {
+            var missions = (await GetMissions(story.Url, userId)).ToList();
+            var storyWithMissions = GetStoryWithMissionsDto(story, missions);
+            storiesWithMissions.Add(storyWithMissions);
+        }
+
+        return storiesWithMissions;
+    }
+
+    public async Task<StoryWithMissionsDto?> GetStory(string storyUrl, int userId)
     {
         Story? storyRecord =
             await _dbContext.Stories.FirstOrDefaultAsync(s => s.Url == storyUrl);
 
-        return storyRecord is null ? null : GetStoryDto(storyRecord);
+        var missions = (await GetMissions(storyUrl, userId)).ToList();
+
+        return storyRecord is null ? null : GetStoryWithMissionsDto(storyRecord, missions);
     }
 
     public Task<IEnumerable<MissionsListDto>> GetMissions(string storyUrl, int userId)
@@ -98,6 +116,7 @@ public class StoryRepository : IStoryRepository
             };
 
             await _dbContext.GameProgresses.AddAsync(gameProgress);
+            Console.WriteLine("add");
         }
         // update old one
         else
@@ -107,11 +126,13 @@ public class StoryRepository : IStoryRepository
             gameProgressRecord.Size = data.Size;
             gameProgressRecord.Completed = data.Completed;
             _dbContext.GameProgresses.Update(gameProgressRecord);
+            Console.WriteLine("update");
         }
 
         try
         {
-            await _dbContext.SaveChangesAsync();
+            int i = await _dbContext.SaveChangesAsync();
+            Console.WriteLine($"save {i}");
         }
         catch (Exception e)
         {
@@ -120,11 +141,13 @@ public class StoryRepository : IStoryRepository
     }
 
     private static StoryDto GetStoryDto(Story story) =>
-        new(story.Id, story.Url, story.Name, story.Description);
+        new(story.Id, story.Url, story.Name, story.Description, story.Missions.Count);
+
+    private static StoryWithMissionsDto GetStoryWithMissionsDto(Story story, List<MissionsListDto> missions) =>
+        new(story.Id, story.Url, story.Name, story.Description, missions);
 
     private static MissionsListDto GetMissionDtoFromGroupJoin(Mission mission, GameProgress? gameProgress)
     {
-        Console.WriteLine($"get out of data {mission} {gameProgress}");
         return new MissionsListDto(
             mission is Game game ? GetGameMissionDto(game, gameProgress) : null,
             mission is Learning learning ? GetLearningMissionDto(learning) : null
@@ -135,6 +158,7 @@ public class StoryRepository : IStoryRepository
         new
         (
             game.Url, game.Name, game.Description,
+            game.TaskDescription,
             game.CommandsInitial, gameProgress?.Commands ?? "",
             game.BoardInitial, game.BoardResult,
             game.SpeedLimit, gameProgress?.Speed ?? 0,

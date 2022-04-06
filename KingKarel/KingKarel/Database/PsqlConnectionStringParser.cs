@@ -2,7 +2,7 @@
 
 public static class PsqlConnectionStringParser
 {
-    internal static string GetEFConnectionString(string connectionUrl)
+    internal static string GetEfConnectionString(string connectionUrl)
     {
         bool isUrl = Uri.TryCreate(connectionUrl, UriKind.Absolute, out Uri? url);
         if (isUrl && url != null)

@@ -1,5 +1,6 @@
-﻿using KingKarel.Dto;
-using KingKarel.Repository;
+﻿using System.Drawing.Printing;
+using KingKarel.Dto;
+using KingKarel.Repository.Contract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KingKarel.Controllers;
@@ -18,8 +19,7 @@ public class MissionController : ControllerBase
     [HttpGet("{storyUrl}")]
     public async Task<ActionResult<IEnumerable<MissionsListDto>>> GetMissions(string storyUrl)
     {
-        int userId;
-        bool success = int.TryParse(User.Claims.First(x => x.Type == "id").Value, out userId);
+        bool success = int.TryParse(User.Claims.First(x => x.Type == "id").Value, out var userId);
         if (!success)
         {
             return Unauthorized();
@@ -27,19 +27,13 @@ public class MissionController : ControllerBase
 
         var missions = await _storyRepository.GetMissions(storyUrl, userId);
         
-        foreach (var missionDto in missions)
-        {
-            Console.WriteLine(missionDto);
-        }
-        
         return Ok(missions);
     }
 
     [HttpGet("{storyUrl}/{missionUrl}")]
     public async Task<ActionResult<IEnumerable<MissionsListDto?>>> GetMission(string storyUrl, string missionUrl)
     {
-        int userId;
-        bool success = int.TryParse(User.Claims.First(x => x.Type == "id").Value, out userId);
+        bool success = int.TryParse(User.Claims.First(x => x.Type == "id").Value, out var userId);
         if (!success)
         {
             return Unauthorized();
@@ -62,13 +56,14 @@ public class MissionController : ControllerBase
         string missionUrl
     )
     {
-        int userId;
-        bool success = int.TryParse(User.Claims.First(x => x.Type == "id").Value, out userId);
+        bool success = int.TryParse(User.Claims.First(x => x.Type == "id").Value, out var userId);
         if (!success)
         {
             return Unauthorized();
         }
 
+        Console.WriteLine($"put {data}");
+        
         await _storyRepository.SaveGameProgress(data, userId, missionUrl);
         return Ok();
     }

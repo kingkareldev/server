@@ -19,13 +19,23 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddCors();
+        var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+
+        services.AddCors(
+            options => options.AddDefaultPolicy(builder =>
+            {
+                builder
+                    .WithOrigins(appSettings.CorsOrigins.ToArray())
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    ;
+            }));
         services.AddControllers();
 
-        var key = Encoding.UTF8.GetBytes(Configuration.GetValue<string>("AppSettings:JwtSecret"));
+        var key = Encoding.UTF8.GetBytes(appSettings.JwtSecret);
         services
             .AddAuthentication("Basic")
-            .AddScheme<BasicAuthenticationOptions, CustomAuthenticationHandler>("Basic", null);
+            .AddScheme<KingKarelAuthOptions, KingKarelAuthHandler>("Basic", null);
 
         services.AddAuthorization(options =>
         {
@@ -37,7 +47,7 @@ public class Startup
         });
 
         var connectionString =
-            PsqlConnectionStringParser.GetEFConnectionString(Configuration.GetValue<string>("AppSettings:DatabaseUrl"));
+            PsqlConnectionStringParser.GetEfConnectionString(appSettings.DatabaseUrl);
         services
             // DB
             .AddDbContext<KingKarelDbContext>(options =>
@@ -78,8 +88,8 @@ public class Startup
             })
 
             // King Karel
-            .AddKingKarelServices()
             .AddKingKarelOptions(Configuration)
+            .AddKingKarelServices()
             ;
     }
 
@@ -104,14 +114,10 @@ public class Startup
         app.UseHttpsRedirection();
         app.UseRouting();
 
+        app.UseCors();
+
         app.UseAuthentication();
         app.UseAuthorization();
-
-        // global cors policy
-        app.UseCors(x => x
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader());
 
         // app.UseKingKarelMiddlewares();
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

@@ -29,6 +29,20 @@ Non-sensitive information is stored in the `appsettings.json` file
 and sensitive information is stored in place outside of the git repository.
 (for more details see the [documentation][secrets])
 
+The app uses this configuration:
+
+```json
+{
+  "AppSettings": {
+    "DatabaseUrl": "<db url>",
+    "JwtSecret": "<token>",
+    "CorsOrigins": [
+      "http://localhost:8080"
+    ]
+  }
+}
+```
+
 ## Database
 
 Install the tool that process database migrations.

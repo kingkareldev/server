@@ -1,6 +1,7 @@
 ﻿using KingKarel.Database;
 using KingKarel.Database.Entities;
 using KingKarel.Dto;
+using KingKarel.Repository.Contract;
 using Microsoft.EntityFrameworkCore;
 
 namespace KingKarel.Repository;
@@ -49,6 +50,7 @@ public class UserRepository : IUserRepository
             Name = userDto.Name,
             Username = userDto.Username,
             Email = userDto.Email,
+            Description = userDto.Description,
             PasswordHash = passwordHash
         };
 
@@ -68,5 +70,5 @@ public class UserRepository : IUserRepository
     }
 
     private static UserWithHashDto GetUserWithHashDto(User user) =>
-        new(new UserDto(user.Id, user.Name, user.Username, user.Email), user.PasswordHash);
+        new(new UserDto(user.Id, user.Name, user.Username, user.Email, user.Description), user.PasswordHash);
 }
