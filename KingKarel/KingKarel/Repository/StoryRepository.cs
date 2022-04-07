@@ -101,22 +101,31 @@ public class StoryRepository : IStoryRepository
 
     public async Task SaveGameProgress(GameProgressDto data, int userId, string gameUrl)
     {
-        GameProgress? gameProgressRecord =
-            await _dbContext.GameProgresses.FirstOrDefaultAsync(gp => gp.User.Id == userId && gp.Game.Url == gameUrl);
+        GameProgress? gameProgressRecord = await _dbContext.GameProgresses
+            .FirstOrDefaultAsync(gp => gp.User.Id == userId && gp.Game.Url == gameUrl);
 
         // create new one
         if (gameProgressRecord is null)
         {
+            User? user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            Game? game = await _dbContext.Games.FirstOrDefaultAsync(g => g.Url == gameUrl);
+
+            if (user is null || game is null)
+            {
+                return;
+            }
+
             GameProgress gameProgress = new()
             {
                 Commands = data.Commands,
                 Speed = data.Speed,
                 Size = data.Size,
-                Completed = data.Completed
+                Completed = data.Completed,
+                User = user,
+                Game = game
             };
 
             await _dbContext.GameProgresses.AddAsync(gameProgress);
-            Console.WriteLine("add");
         }
         // update old one
         else
@@ -126,13 +135,11 @@ public class StoryRepository : IStoryRepository
             gameProgressRecord.Size = data.Size;
             gameProgressRecord.Completed = data.Completed;
             _dbContext.GameProgresses.Update(gameProgressRecord);
-            Console.WriteLine("update");
         }
 
         try
         {
-            int i = await _dbContext.SaveChangesAsync();
-            Console.WriteLine($"save {i}");
+            await _dbContext.SaveChangesAsync();
         }
         catch (Exception e)
         {

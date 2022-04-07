@@ -7,6 +7,6 @@ internal sealed class GameProgressMapper : IEntityMapper<GameProgress>
 {
     public void Map(EntityTypeBuilder<GameProgress> builder)
     {
-        builder.HasKey(v => v.Id);
+        builder.HasKey(gp => gp.Id);
     }
 }
