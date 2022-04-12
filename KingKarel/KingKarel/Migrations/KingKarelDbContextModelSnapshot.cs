@@ -54,7 +54,7 @@ namespace KingKarel.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("GameProgresses");
+                    b.ToTable("GameProgresses", (string)null);
                 });
 
             modelBuilder.Entity("KingKarel.Database.Entities.Mission", b =>
@@ -90,7 +90,7 @@ namespace KingKarel.Migrations
                     b.HasIndex("Url")
                         .IsUnique();
 
-                    b.ToTable("Missions");
+                    b.ToTable("Missions", (string)null);
                 });
 
             modelBuilder.Entity("KingKarel.Database.Entities.Story", b =>
@@ -118,7 +118,7 @@ namespace KingKarel.Migrations
                     b.HasIndex("Url")
                         .IsUnique();
 
-                    b.ToTable("Stories");
+                    b.ToTable("Stories", (string)null);
                 });
 
             modelBuilder.Entity("KingKarel.Database.Entities.User", b =>
@@ -154,7 +154,7 @@ namespace KingKarel.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("KingKarel.Database.Entities.Game", b =>
@@ -191,7 +191,7 @@ namespace KingKarel.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.ToTable("Game");
+                    b.ToTable("Game", (string)null);
                 });
 
             modelBuilder.Entity("KingKarel.Database.Entities.Learning", b =>
@@ -205,7 +205,7 @@ namespace KingKarel.Migrations
                     b.Property<bool>("IsStory")
                         .HasColumnType("boolean");
 
-                    b.ToTable("Learning");
+                    b.ToTable("Learning", (string)null);
                 });
 
             modelBuilder.Entity("KingKarel.Database.Entities.GameProgress", b =>
