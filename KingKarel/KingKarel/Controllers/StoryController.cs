@@ -1,5 +1,5 @@
 ﻿using KingKarel.Dto;
-using KingKarel.Repository.Contract;
+using KingKarel.Services.Contract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KingKarel.Controllers;
@@ -8,17 +8,17 @@ namespace KingKarel.Controllers;
 [Route("api/[controller]")]
 public class StoryController : ControllerBase
 {
-    private readonly IStoryRepository _storyRepository;
+    private readonly IStoryService _storyService;
 
-    public StoryController(IStoryRepository storyRepository)
+    public StoryController(IStoryService storyService)
     {
-        _storyRepository = storyRepository;
+        _storyService = storyService;
     }
 
     [HttpGet]
     public async Task<IEnumerable<StoryDto>> GetStories()
     {
-        return await _storyRepository.GetStories();
+        return await _storyService.GetStories();
     }
 
     [HttpGet("{storyId}")]
@@ -29,7 +29,7 @@ public class StoryController : ControllerBase
         {
             return Unauthorized();
         }
-        var story = await _storyRepository.GetStory(storyId, userId);
+        var story = await _storyService.GetStory(storyId, userId);
 
         if (story is null)
         {

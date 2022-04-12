@@ -25,6 +25,7 @@ public static class KingKarelExtensions
             // Services
             .AddScoped<IJwtService, JwtService>()
             .AddScoped<IUserService, UserService>()
+            .AddScoped<IStoryService, StoryService>()
             ;
 
         return services;

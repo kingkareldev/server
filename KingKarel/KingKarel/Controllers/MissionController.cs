@@ -1,6 +1,6 @@
 ﻿using System.Drawing.Printing;
 using KingKarel.Dto;
-using KingKarel.Repository.Contract;
+using KingKarel.Services.Contract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace KingKarel.Controllers;
@@ -9,11 +9,11 @@ namespace KingKarel.Controllers;
 [Route("api/[controller]")]
 public class MissionController : ControllerBase
 {
-    private readonly IStoryRepository _storyRepository;
+    private readonly IStoryService _storyService;
 
-    public MissionController(IStoryRepository storyRepository)
+    public MissionController(IStoryService storyService)
     {
-        _storyRepository = storyRepository;
+        _storyService = storyService;
     }
 
     [HttpGet("{storyUrl}")]
@@ -25,7 +25,7 @@ public class MissionController : ControllerBase
             return Unauthorized();
         }
 
-        var missions = await _storyRepository.GetMissions(storyUrl, userId);
+        var missions = await _storyService.GetMissions(storyUrl, userId);
         
         return Ok(missions);
     }
@@ -39,7 +39,7 @@ public class MissionController : ControllerBase
             return Unauthorized();
         }
 
-        var mission = await _storyRepository.GetMission(missionUrl, userId);
+        var mission = await _storyService.GetMission(missionUrl, userId);
 
         if (mission is null)
         {
@@ -64,7 +64,7 @@ public class MissionController : ControllerBase
 
         Console.WriteLine($"put {data}");
         
-        await _storyRepository.SaveGameProgress(data, userId, missionUrl);
+        await _storyService.SaveGameProgress(data, userId, missionUrl);
         return Ok();
     }
 }
